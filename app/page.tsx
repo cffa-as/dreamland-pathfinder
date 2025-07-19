@@ -161,7 +161,7 @@ export default function DreamlandPathfinder() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-3 flex items-center justify-center gap-3 drop-shadow-2xl">
+          <h1 className="text-4xl font-bold text-white mb-3 flex items-center justify-center gap-3 drop-shadow-2xl">
             <div className="p-2 bg-blue-500/20 rounded-full backdrop-blur-sm border border-blue-400/30">
               <MapPin className="w-8 h-8 text-blue-300" />
             </div>

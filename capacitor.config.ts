@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.dreamland.pathfinder',
-  appName: 'Dreamland Pathfinder',
+  appName: '梦墟地图导航',
   webDir: 'out',
   server: {
     androidScheme: 'https'
