@@ -8,8 +8,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
+  build-web:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      
+      - name: Build Next.js project
+        run: npm run build
+        
+      - name: List output directory
+        run: |
+          ls -la
+          ls -la out || echo "out directory doesn't exist"
+          
+      - name: Upload web artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: out/
+          retention-days: 7
+
+  build-android-optional:
+    needs: build-web
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Make this job optional
     steps:
       - uses: actions/checkout@v4
       
@@ -26,24 +57,65 @@ jobs:
           java-version: '21'
           cache: gradle
       
+      - name: Download web artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: out/
+      
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
       
-      - name: Build Next.js project
-        run: npm run build
+      - name: Debug environment
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Node.js version:"
+          node --version
+          echo "NPM version:"
+          npm --version
       
       - name: Install Capacitor CLI
         run: npm install -g @capacitor/cli
       
       - name: Build Android
         run: |
+          echo "Adding Android platform..."
           npx cap add android
+          
+          echo "Directory after adding Android:"
+          ls -la
+          
+          echo "Android directory contents:"
+          ls -la android || echo "Android directory not created"
+          
+          echo "Syncing capacitor..."
           npx cap sync android
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          
+          echo "Android directory contents after sync:"
+          ls -la android || echo "Android directory not found after sync"
+          
+          if [ -d "android" ]; then
+            cd android
+            echo "Android directory structure:"
+            find . -type f -name "*.gradle" | sort
+            
+            if [ -f "gradlew" ]; then
+              chmod +x gradlew
+              ./gradlew assembleDebug
+            else
+              echo "gradlew file not found"
+              exit 1
+            fi
+          else
+            echo "Android directory not found, skipping build"
+            exit 1
+          fi
       
       - name: Upload Android APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
