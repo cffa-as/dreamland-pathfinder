@@ -65,6 +65,7 @@ jobs:
       
       - name: Build Android
         run: |
+          npx cap add android
           npx cap sync android
           cd android
           chmod +x gradlew
