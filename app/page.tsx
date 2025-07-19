@@ -7,8 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Navigation, RotateCcw } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Download, Expand } from "lucide-react"
 
 // 更新后的地点列表
 const locations = [
@@ -77,7 +75,8 @@ function findShortestPath(start: string, end: string): string[] {
   while (unvisited.size > 0) {
     // 找到未访问节点中距离最小的
     const current = Array.from(unvisited).reduce((min, location) =>
-      distances[location] < distances[min] ? location : min,
+      distances[location] < distances[min] ? location : min, 
+      Array.from(unvisited)[0]
     )
 
     if (distances[current] === Number.POSITIVE_INFINITY) break
@@ -101,7 +100,7 @@ function findShortestPath(start: string, end: string): string[] {
 
   // 重构路径
   const path: string[] = []
-  let current = end
+  let current: string | null = end
 
   while (current !== null) {
     path.unshift(current)
@@ -141,14 +140,7 @@ export default function DreamlandPathfinder() {
     [endLocation],
   )
 
-  const downloadMap = () => {
-    const link = document.createElement("a")
-    link.href = "/dreamland-map.png"
-    link.download = "梦墟地图.png"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+  // 下载功能已移除
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4 relative overflow-hidden">
@@ -315,113 +307,17 @@ export default function DreamlandPathfinder() {
                     <MapPin className="w-5 h-5 text-blue-400" />
                     梦墟地图
                   </CardTitle>
-                  <div className="flex gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-200"
-                        >
-                          <Expand className="w-4 h-4 mr-1" />
-                          查看大图
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-6xl w-[95vw] h-[95vh] p-0">
-                        <DialogHeader className="p-4 pb-2">
-                          <DialogTitle className="flex items-center justify-between">
-                            <span>梦墟地图 - 高清大图</span>
-                            <Button onClick={downloadMap} variant="outline" size="sm" className="ml-4 bg-transparent">
-                              <Download className="w-4 h-4 mr-1" />
-                              下载
-                            </Button>
-                          </DialogTitle>
-                        </DialogHeader>
-                        <div className="flex-1 overflow-auto p-4 pt-0">
-                          <img
-                            src="/dreamland-map.png"
-                            alt="梦墟地图高清大图"
-                            className="w-full h-auto rounded-lg shadow-lg"
-                          />
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      onClick={downloadMap}
-                      variant="outline"
-                      size="sm"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-200"
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      下载
-                    </Button>
-                  </div>
+                  {/* 按钮已移除 */}
                 </div>
               </CardHeader>
               <CardContent className="p-4">
                 <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 shadow-inner">
-                  <div
-                    className="cursor-pointer transition-transform duration-200 hover:scale-[1.02] rounded-lg overflow-hidden shadow-lg"
-                    onClick={() => document.querySelector("[data-dialog-trigger]")?.click()}
-                  >
+                  <div className="rounded-lg overflow-hidden shadow-lg">
                     <img src="/dreamland-map.png" alt="梦墟地图" className="w-full h-auto rounded-lg" />
-                    <div className="absolute inset-0 bg-black/0 hover:bg-black/5 transition-colors duration-200 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
-                      <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
-                        <span className="text-gray-800 font-medium flex items-center gap-2">
-                          <Expand className="w-4 h-4" />
-                          点击查看大图
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
-                {/* 路径详细信息显示 - 美化版 */}
-                {path.length > 0 && (
-                  <div className="mt-6 p-5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-white/20 backdrop-blur-sm">
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2 text-lg">
-                      <Navigation className="w-5 h-5 text-blue-400" />
-                      最优路径
-                      <Badge variant="secondary" className="ml-2 bg-blue-500/20 text-blue-200 border-blue-400/30">
-                        {path.length - 1} 步
-                      </Badge>
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {path.map((location, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/10 hover:bg-white/15 transition-all duration-200 group"
-                        >
-                          <Badge
-                            variant={index === 0 ? "default" : index === path.length - 1 ? "destructive" : "secondary"}
-                            className={`text-xs min-w-[28px] h-7 justify-center font-bold ${
-                              index === 0
-                                ? "bg-green-500 hover:bg-green-600 shadow-green-500/25 shadow-lg"
-                                : index === path.length - 1
-                                  ? "bg-red-500 hover:bg-red-600 shadow-red-500/25 shadow-lg"
-                                  : "bg-blue-500 hover:bg-blue-600 shadow-blue-500/25 shadow-lg"
-                            }`}
-                          >
-                            {index + 1}
-                          </Badge>
-                          <span className="text-white text-sm font-medium flex-1">{location}</span>
-                          {index < path.length - 1 && (
-                            <span className="text-blue-300 text-lg ml-auto group-hover:translate-x-1 transition-transform duration-200">
-                              →
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                      <p className="text-blue-200 text-sm flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        路径总览：从 <span className="text-green-300 font-semibold">{path[0]}</span> 到{" "}
-                        <span className="text-red-300 font-semibold">{path[path.length - 1]}</span>
-                      </p>
-                    </div>
-                  </div>
-                )}
+                {/* 最优路径显示已移除 */}
               </CardContent>
             </Card>
           </div>
