@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
       - name: Build
         run: npm run build
@@ -58,7 +58,7 @@ jobs:
           path: .next/
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
       - name: Install Capacitor CLI
         run: npm install -g @capacitor/cli
