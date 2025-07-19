@@ -82,14 +82,8 @@ jobs:
       
       - name: Build Android
         run: |
-          echo "Adding Android platform..."
-          npx cap add android
-          
-          echo "Directory after adding Android:"
-          ls -la
-          
           echo "Android directory contents:"
-          ls -la android || echo "Android directory not created"
+          ls -la android
           
           echo "Syncing capacitor..."
           npx cap sync android
